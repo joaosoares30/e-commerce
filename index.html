@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+        integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Commerce</title>
+</head>
+
+<body>
+    <header class="header">
+        <div class="container">
+            <img alt="logo-ecommerce" class="logo" src="img/logo-ecommerce.png">
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="Buscar produtos..." class="search-input">
+                <button class="search-btn" id="searchBtn">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+    <section class="hero">
+        <h1>Oferta Imperdiveis</h1>
+        <p>Black Friday JSmarket</p>
+    </section>
+
+    <main class="main">
+        <div class="container-body">
+            <h2 class="section-title">Oferta do dia</h2>
+            <div class="products-grid" id="products-grid">
+                <!--Produtos via JS-->
+
+                <div class="product-card">
+                    <img class="product-image">
+                    <h3 class="product-title"></h3>
+                    <div class="product-price"></div>
+                    <div class="product-discount"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <p>Desenvolvido por João Soares</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
