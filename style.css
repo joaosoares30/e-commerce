@@ -152,6 +152,18 @@ footer p {
     font-size: 14px;
 }
 
+.link-contato{
+    width: 40px;
+    height: 40px;
+}
+
+.github-link,
+.linkedin-link,
+.gmail-link{
+    height: 35px;
+    margin: 5px;
+}
+
 @media (min-width: 1200px) {
     .container-body {
         max-width: 1400px;
@@ -226,4 +238,11 @@ footer p {
     .product-discount {
         font-size: 10px;
     }
+
+.github-link,
+.linkedin-link,
+.gmail-link{
+    height: 25px;
+    margin: 5px;
+}
 }
