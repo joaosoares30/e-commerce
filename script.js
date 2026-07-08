@@ -117,9 +117,117 @@ function createProductCard(product) {
             <img src="${product.image}" alt="${product.title}" class="product-image">
             <h3 class="product-title">${product.title}</h3>
             <div class="product-price">${precoFormatado}</div>
-            <div class="product-discount">${product.discount}% OFF</div>
+            <div class="product-discount"> ${product.discount}% OFF</div>
+            <button class="btn-add-cart" data-id="${product.id}">Adicionar ao carrinho</button>
         </div>
     `;
+}
+
+/* ---------- Carrinho (localStorage) ---------- */
+
+const CART_KEY = 'ecommerce-cart';
+
+function getCart() {
+    try {
+        return JSON.parse(localStorage.getItem(CART_KEY)) || [];
+    } catch {
+        return [];
+    }
+}
+
+function saveCart(cart) {
+    localStorage.setItem(CART_KEY, JSON.stringify(cart));
+    updateCartCount();
+}
+
+function addToCart(productId) {
+    const product = products.find(p => p.id === productId);
+    if (!product) return;
+
+    const cart = getCart();
+    const item = cart.find(i => i.id === productId);
+
+    if (item) {
+        item.quantity += 1;
+    } else {
+        cart.push({ id: product.id, quantity: 1 });
+    }
+
+    saveCart(cart);
+}
+
+function removeFromCart(productId) {
+    const cart = getCart().filter(i => i.id !== productId);
+    saveCart(cart);
+    renderCartPage();
+}
+
+function updateCartQuantity(productId, quantity) {
+    const cart = getCart();
+    const item = cart.find(i => i.id === productId);
+    if (!item) return;
+
+    if (quantity <= 0) {
+        removeFromCart(productId);
+        return;
+    }
+
+    item.quantity = quantity;
+    saveCart(cart);
+    renderCartPage();
+}
+
+function updateCartCount() {
+    const total = getCart().reduce((sum, i) => sum + i.quantity, 0);
+    const desktopBadge = document.getElementById('cartCount');
+    const mobileBadge = document.getElementById('cartCountMobile');
+    if (desktopBadge) desktopBadge.textContent = total;
+    if (mobileBadge) mobileBadge.textContent = total;
+}
+
+function renderCartPage() {
+    const cartList = document.getElementById('cart-list');
+    const totalValueEl = document.getElementById('cart-total-value');
+    if (!cartList || !totalValueEl) return; // não estamos na página do carrinho
+
+    const cart = getCart();
+
+    if (cart.length === 0) {
+        cartList.innerHTML = '<p class="cart-empty">Seu carrinho está vazio. <a href="index.html">Ver produtos</a></p>';
+        totalValueEl.textContent = (0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        return;
+    }
+
+    let total = 0;
+
+    cartList.innerHTML = cart.map(item => {
+        const product = products.find(p => p.id === item.id);
+        if (!product) return '';
+
+        const subtotal = product.price * item.quantity;
+        total += subtotal;
+
+        return `
+            <div class="cart-item">
+                <img src="${product.image}" alt="${product.title}" class="cart-item-image">
+                <div class="cart-item-info">
+                    <h3 class="cart-item-title">${product.title}</h3>
+                    <div class="cart-item-price">${product.price.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</div>
+                </div>
+                <div class="cart-item-qty">
+                    <button class="qty-btn" data-action="decrease" data-id="${product.id}">-</button>
+                    <span>${item.quantity}</span>
+                    <button class="qty-btn" data-action="increase" data-id="${product.id}">+</button>
+                </div>
+                <div class="cart-item-subtotal">${subtotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</div>
+                <button class="cart-item-remove" data-id="${product.id}" aria-label="Remover item">
+                    <i class="fa-solid fa-trash"></i>
+                </button>
+            </div>
+        `;
+    }).join('');
+
+    totalValueEl.textContent = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 }
 
 function searchProducts(){
@@ -137,11 +245,102 @@ function renderProducts(list = products) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    renderProducts();
+    const grid = document.getElementById('products-grid');
+    if (grid) {
+        renderProducts();
 
-    document.getElementById('searchBtn').addEventListener('click', searchProducts)
+        // Delegação de eventos: captura clique no botão "Adicionar ao carrinho"
+        grid.addEventListener('click', (e) => {
+            const btn = e.target.closest('.btn-add-cart');
+            if (!btn) return;
+            addToCart(Number(btn.dataset.id));
+            btn.textContent = 'Adicionado ✓';
+            setTimeout(() => { btn.textContent = 'Adicionar ao carrinho'; }, 1200);
+        });
+    }
 
-        document.getElementById('searchInput').addEventListener('keyup', (e) => {
-        if (e.key === 'Enter') searchProducts();
-    });
+    const searchBtn = document.getElementById('searchBtn');
+    const searchInput = document.getElementById('searchInput');
+    if (searchBtn) searchBtn.addEventListener('click', searchProducts);
+    if (searchInput) {
+        searchInput.addEventListener('keyup', (e) => {
+            if (e.key === 'Enter') searchProducts();
+        });
+    }
+
+    // Página do carrinho: renderiza itens e escuta cliques de +/-/remover
+    const cartList = document.getElementById('cart-list');
+    if (cartList) {
+        renderCartPage();
+
+        cartList.addEventListener('click', (e) => {
+            const removeBtn = e.target.closest('.cart-item-remove');
+            if (removeBtn) {
+                removeFromCart(Number(removeBtn.dataset.id));
+                return;
+            }
+
+            const qtyBtn = e.target.closest('.qty-btn');
+            if (qtyBtn) {
+                const id = Number(qtyBtn.dataset.id);
+                const cart = getCart();
+                const item = cart.find(i => i.id === id);
+                if (!item) return;
+                const delta = qtyBtn.dataset.action === 'increase' ? 1 : -1;
+                updateCartQuantity(id, item.quantity + delta);
+            }
+        });
+
+        const checkoutBtn = document.getElementById('checkoutBtn');
+        if (checkoutBtn) {
+            checkoutBtn.addEventListener('click', () => {
+                if (getCart().length === 0) {
+                    alert('Seu carrinho está vazio.');
+                    return;
+                }
+                alert('Compra finalizada! (fluxo de pagamento ainda não implementado)');
+            });
+        }
+    }
+
+    updateCartCount();
 });
+
+const hamburgerBtn = document.getElementById('hamburgerBtn');
+const mobileMenu = document.getElementById('mobileMenu');
+
+if (hamburgerBtn && mobileMenu) {
+    hamburgerBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        mobileMenu.classList.toggle('open');
+        const icon = hamburgerBtn.querySelector('i');
+        icon.classList.toggle('fa-bars');
+        icon.classList.toggle('fa-xmark');
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!mobileMenu.contains(e.target) && !hamburgerBtn.contains(e.target)) {
+            mobileMenu.classList.remove('open');
+            const icon = hamburgerBtn.querySelector('i');
+            icon.classList.add('fa-bars');
+            icon.classList.remove('fa-xmark');
+        }
+    });
+}
+
+// Busca mobile sincroniza com a principal
+const searchBtnMobile = document.getElementById('searchBtnMobile');
+const searchInputMobile = document.getElementById('searchInputMobile');
+
+if (searchBtnMobile && searchInputMobile) {
+    searchBtnMobile.addEventListener('click', () => {
+        document.getElementById('searchInput').value = searchInputMobile.value;
+        searchProducts();
+    });
+    searchInputMobile.addEventListener('keyup', (e) => {
+        if (e.key === 'Enter') {
+            document.getElementById('searchInput').value = searchInputMobile.value;
+            searchProducts();
+        }
+    });
+}
