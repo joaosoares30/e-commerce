@@ -230,6 +230,143 @@ function renderCartPage() {
     totalValueEl.textContent = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 }
 
+/* ---------- Página de pagamento ---------- */
+
+function renderPaymentSummary() {
+    const summaryItemsEl = document.getElementById('summaryItems');
+    if (!summaryItemsEl) return; // não estamos na página de pagamento
+
+    const cart = getCart();
+
+    if (cart.length === 0) {
+        window.location.href = 'carrinho.html';
+        return;
+    }
+
+    let total = 0;
+
+    summaryItemsEl.innerHTML = cart.map(item => {
+        const product = products.find(p => p.id === item.id);
+        if (!product) return '';
+
+        const subtotal = product.price * item.quantity;
+        total += subtotal;
+
+        return `
+            <div class="summary-item">
+                <img src="${product.image}" alt="${product.title}">
+                <div class="summary-item-info">
+                    ${product.title}
+                    <div class="summary-item-qty">Qtd: ${item.quantity}</div>
+                </div>
+                <div class="summary-item-price">${subtotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</div>
+            </div>
+        `;
+    }).join('');
+
+    const totalFormatted = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    document.getElementById('summarySubtotal').textContent = totalFormatted;
+    document.getElementById('summaryTotal').textContent = totalFormatted;
+
+    fillInstallments(total);
+}
+
+function fillInstallments(total) {
+    const select = document.getElementById('cardInstallments');
+    if (!select) return;
+
+    let options = '';
+    for (let i = 1; i <= 12; i++) {
+        const value = total / i;
+        const label = i === 1
+            ? `À vista - ${value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`
+            : `${i}x de ${value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })} sem juros`;
+        options += `<option value="${i}">${label}</option>`;
+    }
+    select.innerHTML = options;
+}
+
+function setupPaymentTabs() {
+    const tabs = document.querySelectorAll('.tab-btn');
+    if (!tabs.length) return;
+
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            tabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+
+            document.querySelectorAll('.payment-method-panel').forEach(panel => panel.hidden = true);
+            document.getElementById(`panel-${tab.dataset.method}`).hidden = false;
+        });
+    });
+}
+
+function setupCardPreview() {
+    const numberInput = document.getElementById('cardNumber');
+    if (!numberInput) return; // não estamos na página de pagamento
+
+    const nameInput = document.getElementById('cardName');
+    const expiryInput = document.getElementById('cardExpiry');
+
+    numberInput.addEventListener('input', () => {
+        let digits = numberInput.value.replace(/\D/g, '').slice(0, 16);
+        numberInput.value = digits.replace(/(.{4})/g, '$1 ').trim();
+
+        const preview = digits.padEnd(16, '•').replace(/(.{4})/g, '$1 ').trim();
+        document.getElementById('cardPreviewNumber').textContent = preview;
+    });
+
+    nameInput.addEventListener('input', () => {
+        document.getElementById('cardPreviewName').textContent = nameInput.value.toUpperCase() || 'NOME COMPLETO';
+    });
+
+    expiryInput.addEventListener('input', () => {
+        let digits = expiryInput.value.replace(/\D/g, '').slice(0, 4);
+        if (digits.length > 2) digits = digits.slice(0, 2) + '/' + digits.slice(2);
+        expiryInput.value = digits;
+        document.getElementById('cardPreviewExpiry').textContent = digits || 'MM/AA';
+    });
+}
+
+function setupPaymentForm() {
+    const form = document.getElementById('paymentForm');
+    if (!form) return;
+
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const activeMethod = document.querySelector('.tab-btn.active').dataset.method;
+
+        if (activeMethod === 'cartao') {
+            const number = document.getElementById('cardNumber').value.replace(/\D/g, '');
+            const name = document.getElementById('cardName').value.trim();
+            const expiry = document.getElementById('cardExpiry').value.trim();
+            const cvv = document.getElementById('cardCvv').value.trim();
+
+            if (number.length < 16 || !name || expiry.length < 5 || cvv.length < 3) {
+                alert('Preencha todos os campos do cartão corretamente.');
+                return;
+            }
+        }
+
+        const btn = document.getElementById('btnPay');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processando...';
+
+        // Simulação de processamento de pagamento
+        setTimeout(() => {
+            saveCart([]); // limpa o carrinho
+            document.getElementById('paymentLayout').hidden = true;
+            document.querySelector('.checkout-steps').hidden = true;
+            document.getElementById('paymentSuccess').hidden = false;
+
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 4000);
+        }, 1500);
+    });
+}
+
 function searchProducts(){
     const searchinput = document.getElementById('searchInput').value.toLowerCase()
 
@@ -298,10 +435,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     alert('Seu carrinho está vazio.');
                     return;
                 }
-                alert('Compra finalizada! (fluxo de pagamento ainda não implementado)');
+                window.location.href = 'pagamento.html';
             });
         }
     }
+
+    // Página de pagamento
+    renderPaymentSummary();
+    setupPaymentTabs();
+    setupCardPreview();
+    setupPaymentForm();
 
     updateCartCount();
 });

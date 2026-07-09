@@ -63,6 +63,6 @@ Depois acesse `http://localhost:8000`.
 
 Desenvolvido por **João Soares**
 
-- [GitHub](https://github.com/joaosoares30)
-- [LinkedIn](https://www.linkedin.com/in/jo%C3%A3o-martins-pinto-soares-bb76752ab/)
-- [E-mail](mailto:joaomartinspsoares0@gmail.com)
+- GitHub: [@joaosoares30](https://github.com/joaosoares30)
+- LinkedIn: *adicione seu link*
+- E-mail: *adicione seu e-mail*
