@@ -136,7 +136,3 @@ Desenvolvido por **João Soares**
 
 
 Desenvolvido por **João Soares**
-
-- GitHub: [@joaosoares30](https://github.com/joaosoares30)
-- LinkedIn: *adicione seu link*
-- E-mail: *adicione seu e-mail*
