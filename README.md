@@ -76,7 +76,3 @@ Como não existe backend, **qualquer preço, quantidade ou total pode ser manipu
 ## Autor
 
 Desenvolvido por **João Soares**
-
-- GitHub: [@joaosoares30](https://github.com/joaosoares30)
-- LinkedIn: *adicione seu link*
-- E-mail: *adicione seu e-mail*
