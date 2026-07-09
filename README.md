@@ -14,6 +14,13 @@ Loja virtual front-end feita com **HTML, CSS e JavaScript puro** (sem frameworks
   - Remover item
   - Cálculo automático de subtotal e total
   - Contador de itens no ícone do carrinho (header)
+- **Página de pagamento**, acessada a partir do carrinho:
+  - Abas para Cartão, Pix e Boleto
+  - Preview animado do cartão (número, nome e validade em tempo real)
+  - Cálculo automático de parcelas
+  - Resumo do pedido com itens, subtotal, frete e total
+  - Simulação de confirmação (limpa o carrinho e redireciona pra loja)
+  - ⚠️ Ambiente 100% simulado — nenhum dado de pagamento é enviado ou armazenado de verdade
 - **Página de login/cadastro** (layout, sem autenticação real ainda)
 - **Menu responsivo** com hambúrguer para mobile
 - Links para redes sociais no rodapé
@@ -22,12 +29,13 @@ Loja virtual front-end feita com **HTML, CSS e JavaScript puro** (sem frameworks
 
 ```
 ecommerce/
-├── index.html          # Página inicial (catálogo de produtos)
-├── carrinho.html        # Página do carrinho de compras
-├── login.html            # Página de login/cadastro
-├── style.css              # Estilos (layout, responsividade)
-├── script.js               # Lógica: produtos, busca, carrinho, menu mobile
-└── img/                      # Logo e banner
+├── index.html         # Página inicial (catálogo de produtos)
+├── carrinho.html       # Página do carrinho de compras
+├── pagamento.html        # Página de pagamento (cartão/pix/boleto)
+├── login.html               # Página de login/cadastro
+├── style.css                  # Estilos (layout, responsividade)
+├── script.js                    # Lógica: produtos, busca, carrinho, pagamento, menu mobile
+└── img/                            # Logo e banner
 ```
 
 ## Tecnologias
@@ -56,13 +64,9 @@ Depois acesse `http://localhost:8000`.
 - [ ] Autenticação real no login (hoje é só front-end estático)
 - [ ] Filtro por categoria e faixa de preço
 - [ ] Página de detalhes do produto
-- [ ] Checkout / integração de pagamento
+- [ ] Integração real de pagamento (backend + gateway como Stripe, Mercado Pago ou PagSeguro — a página atual é só uma simulação de front-end)
 - [ ] Favoritos e notificações (já existem no menu, mas sem função ainda)
 
 ## Autor
 
 Desenvolvido por **João Soares**
-
-- GitHub: [@joaosoares30](https://github.com/joaosoares30)
-- LinkedIn: *adicione seu link*
-- E-mail: *adicione seu e-mail*
