@@ -1,13 +1,6 @@
-// Os produtos agora vêm do backend (GET /api/products), que lê do banco
-// de dados. O front-end nunca mais é a fonte da verdade sobre preços.
-
-let products = [];
-
-async function loadProducts() {
-    const response = await fetch('/api/products');
-    if (!response.ok) throw new Error('Não foi possível carregar os produtos.');
-    products = await response.json();
-}
+// Os produtos vêm do products.js (carregado antes deste arquivo via <script>),
+// que já declara a variável `products`. Isso evita usar fetch(), que os
+// navegadores bloqueiam ao abrir o HTML direto do disco (file://).
 
 function createProductCard(product) {
     const precoFormatado = product.price.toLocaleString('pt-BR', {
@@ -235,7 +228,7 @@ function setupPaymentForm() {
     const form = document.getElementById('paymentForm');
     if (!form) return;
 
-    form.addEventListener('submit', async (e) => {
+    form.addEventListener('submit', (e) => {
         e.preventDefault();
 
         const activeMethod = document.querySelector('.tab-btn.active').dataset.method;
@@ -256,41 +249,17 @@ function setupPaymentForm() {
         btn.disabled = true;
         btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processando...';
 
-        try {
-            // O servidor recebe só {id, quantity} - nunca o preço.
-            // O total de verdade é recalculado no backend a partir do banco.
-            const response = await fetch('/api/checkout', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    items: getCart(),
-                    paymentMethod: activeMethod
-                })
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.error || 'Não foi possível concluir o pagamento.');
-            }
-
-            saveCart([]); // limpa o carrinho só depois da confirmação do servidor
+        // Simulação de processamento de pagamento
+        setTimeout(() => {
+            saveCart([]); // limpa o carrinho
             document.getElementById('paymentLayout').hidden = true;
             document.querySelector('.checkout-steps').hidden = true;
-
-            const successEl = document.getElementById('paymentSuccess');
-            successEl.querySelector('p').textContent =
-                `Pedido #${data.orderId} confirmado - total de ${data.total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}. Você será redirecionado para a loja em instantes.`;
-            successEl.hidden = false;
+            document.getElementById('paymentSuccess').hidden = false;
 
             setTimeout(() => {
                 window.location.href = 'index.html';
             }, 4000);
-        } catch (err) {
-            alert(err.message);
-            btn.disabled = false;
-            btn.innerHTML = '<i class="fa-solid fa-lock"></i> Confirmar pagamento';
-        }
+        }, 1500);
     });
 }
 
@@ -308,23 +277,10 @@ function renderProducts(list = products) {
     grid.innerHTML = list.map(createProductCard).join('');
 }
 
-document.addEventListener('DOMContentLoaded', async () => {
-    let productsLoaded = true;
-
-    try {
-        await loadProducts();
-    } catch (err) {
-        console.error(err);
-        productsLoaded = false;
-    }
-
+document.addEventListener('DOMContentLoaded', () => {
     const grid = document.getElementById('products-grid');
     if (grid) {
-        if (!productsLoaded) {
-            grid.innerHTML = '<p class="cart-empty">Não foi possível conectar ao servidor. Verifique se o backend está rodando (node server.js).</p>';
-        } else {
-            renderProducts();
-        }
+        renderProducts();
 
         // Delegação de eventos: captura clique no botão "Adicionar ao carrinho"
         grid.addEventListener('click', (e) => {
@@ -348,11 +304,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Página do carrinho: renderiza itens e escuta cliques de +/-/remover
     const cartList = document.getElementById('cart-list');
     if (cartList) {
-        if (!productsLoaded) {
-            cartList.innerHTML = '<p class="cart-empty">Não foi possível conectar ao servidor. Verifique se o backend está rodando (node server.js).</p>';
-        } else {
-            renderCartPage();
-        }
+        renderCartPage();
 
         cartList.addEventListener('click', (e) => {
             const removeBtn = e.target.closest('.cart-item-remove');
@@ -385,7 +337,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // Página de pagamento
-    if (productsLoaded) renderPaymentSummary();
+    renderPaymentSummary();
     setupPaymentTabs();
     setupCardPreview();
     setupPaymentForm();
