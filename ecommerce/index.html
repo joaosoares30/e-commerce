@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+        integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Commerce</title>
+</head>
+
+<body>
+    <header class="header">
+        <div class="container">
+            <img alt="logo-ecommerce" class="logo" src="img/logo-ecommerce.png">
+
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="Buscar produtos..." class="search-input">
+                <button class="search-btn" id="searchBtn">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </button>
+            </div>
+
+            <nav class="link-nav" id="linkNav">
+                <div class="dropdown">
+                    <button class="dropbtn"><a class="link-usuario" href="#"><i class="fa-solid fa-user"></i> Usuário</a></button>
+                    <div class="dropdown-content">
+                        <a href="#">NomeDoUsuario</a>
+                        <a href="login.html">Adicionar Conta</a>
+                        <a href="#">Favoritos</a>
+                        <a href="#">Sair</a>
+                    </div>
+                </div>
+                <a class="link-sino" href="#"><i class="fa-solid fa-bell"></i> Notificações</a>
+                <a class="link-carrinho" href="carrinho.html"><i class="fa-solid fa-cart-shopping"></i> Carrinho <span class="cart-count" id="cartCount">0</span></a>
+            </nav>
+
+            <div class="mobile-actions">
+                <a class="mobile-cart" href="carrinho.html" aria-label="Carrinho">
+                    <i class="fa-solid fa-cart-shopping"></i>
+                    <span class="cart-count" id="cartCountMobile">0</span>
+                </a>
+                <button class="hamburger" id="hamburgerBtn" aria-label="Abrir menu">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+            </div>
+
+        </div>
+
+        <nav class="mobile-menu" id="mobileMenu">
+            <a href="#"><i class="fa-solid fa-user"></i> Usuário</a>
+            <a href="#"><i class="fa-solid fa-heart"></i> Favoritos</a>
+            <div class="mobile-search">
+                <input type="text" id="searchInputMobile" placeholder="Buscar produtos..." class="search-input">
+                <button class="search-btn" id="searchBtnMobile">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <section class="hero">
+    </section>
+
+    <main class="main">
+        <div class="container-body">
+            <h2 class="section-title">Oferta do dia</h2>
+            <div class="products-grid" id="products-grid">
+                <div class="product-card">
+                    <img class="product-image">
+                    <h3 class="product-title"></h3>
+                    <div class="product-price"></div>
+                    <div class="product-discount"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>Desenvolvido por João Soares</p>
+        <div class="social-links">
+            <a href="https://github.com/joaosoares30" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+                <i class="fa-brands fa-github"></i>
+            </a>
+            <a href="https://www.linkedin.com/in/SEU-USUARIO-LINKEDIN" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+                <i class="fa-brands fa-linkedin"></i>
+            </a>
+            <a href="mailto:seuemail@gmail.com" aria-label="E-mail">
+                <i class="fa-solid fa-envelope"></i>
+            </a>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
