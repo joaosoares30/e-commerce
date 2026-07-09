@@ -35,8 +35,11 @@ ecommerce/
 ├── login.html               # Página de login/cadastro
 ├── style.css                  # Estilos (layout, responsividade)
 ├── script.js                    # Lógica: produtos, busca, carrinho, pagamento, menu mobile
-└── img/                            # Logo e banner
+├── products.json                  # Dados dos produtos (carregados via fetch)
+└── img/                              # Logo e banner
 ```
+
+> Os produtos não ficam mais escritos direto no `script.js` — eles são carregados de `products.json` via `fetch()` quando a página abre. Por isso é **obrigatório** rodar o projeto por um servidor local (veja abaixo); abrir o `index.html` direto com duplo clique (`file://`) não funciona por causa de CORS.
 
 ## Tecnologias
 
@@ -47,17 +50,19 @@ ecommerce/
 
 ## Como rodar
 
-Não tem build nem dependências — é só abrir o `index.html` no navegador, ou servir a pasta com qualquer servidor estático:
+Não tem build nem dependências, mas o projeto **precisa ser servido por um servidor local** (não abra o `index.html` com duplo clique) — os produtos são carregados via `fetch('products.json')`, e o navegador bloqueia esse tipo de requisição em arquivos abertos direto do disco (`file://`).
 
 ```bash
+cd ecommerce
+
 # Python
 python3 -m http.server 8000
 
-# Node (com o pacote serve)
+# ou Node (com o pacote serve)
 npx serve .
 ```
 
-Depois acesse `http://localhost:8000`.
+Depois acesse `http://localhost:8000` (a porta pode variar com o `serve`, o terminal mostra o endereço certo).
 
 ## Roadmap / próximos passos
 
