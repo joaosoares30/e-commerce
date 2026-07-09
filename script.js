@@ -1,8 +1,11 @@
+// Os produtos agora vêm do backend (GET /api/products), que lê do banco
+// de dados. O front-end nunca mais é a fonte da verdade sobre preços.
+
 let products = [];
 
 async function loadProducts() {
-    const response = await fetch('products.json');
-    if (!response.ok) throw new Error('Não foi possível carregar products.json');
+    const response = await fetch('/api/products');
+    if (!response.ok) throw new Error('Não foi possível carregar os produtos.');
     products = await response.json();
 }
 
@@ -232,7 +235,7 @@ function setupPaymentForm() {
     const form = document.getElementById('paymentForm');
     if (!form) return;
 
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
         const activeMethod = document.querySelector('.tab-btn.active').dataset.method;
@@ -253,17 +256,41 @@ function setupPaymentForm() {
         btn.disabled = true;
         btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processando...';
 
-        // Simulação de processamento de pagamento
-        setTimeout(() => {
-            saveCart([]); // limpa o carrinho
+        try {
+            // O servidor recebe só {id, quantity} - nunca o preço.
+            // O total de verdade é recalculado no backend a partir do banco.
+            const response = await fetch('/api/checkout', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    items: getCart(),
+                    paymentMethod: activeMethod
+                })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Não foi possível concluir o pagamento.');
+            }
+
+            saveCart([]); // limpa o carrinho só depois da confirmação do servidor
             document.getElementById('paymentLayout').hidden = true;
             document.querySelector('.checkout-steps').hidden = true;
-            document.getElementById('paymentSuccess').hidden = false;
+
+            const successEl = document.getElementById('paymentSuccess');
+            successEl.querySelector('p').textContent =
+                `Pedido #${data.orderId} confirmado - total de ${data.total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}. Você será redirecionado para a loja em instantes.`;
+            successEl.hidden = false;
 
             setTimeout(() => {
                 window.location.href = 'index.html';
             }, 4000);
-        }, 1500);
+        } catch (err) {
+            alert(err.message);
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-lock"></i> Confirmar pagamento';
+        }
     });
 }
 
@@ -289,13 +316,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     } catch (err) {
         console.error(err);
         productsLoaded = false;
-        const grid = document.getElementById('products-grid');
-        if (grid) grid.innerHTML = '<p class="cart-empty">Não foi possível carregar os produtos. Tente recarregar a página.</p>';
     }
 
     const grid = document.getElementById('products-grid');
-    if (grid && productsLoaded) {
-        renderProducts();
+    if (grid) {
+        if (!productsLoaded) {
+            grid.innerHTML = '<p class="cart-empty">Não foi possível conectar ao servidor. Verifique se o backend está rodando (node server.js).</p>';
+        } else {
+            renderProducts();
+        }
 
         // Delegação de eventos: captura clique no botão "Adicionar ao carrinho"
         grid.addEventListener('click', (e) => {
@@ -319,10 +348,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Página do carrinho: renderiza itens e escuta cliques de +/-/remover
     const cartList = document.getElementById('cart-list');
     if (cartList) {
-        if (productsLoaded) {
-            renderCartPage();
+        if (!productsLoaded) {
+            cartList.innerHTML = '<p class="cart-empty">Não foi possível conectar ao servidor. Verifique se o backend está rodando (node server.js).</p>';
         } else {
-            cartList.innerHTML = '<p class="cart-empty">Não foi possível carregar os produtos. Tente recarregar a página.</p>';
+            renderCartPage();
         }
 
         cartList.addEventListener('click', (e) => {
